@@ -22,8 +22,9 @@ if (env === 'development' || env === 'test') {//This code will never run in the 
         process.env.MONGODB_URI = config.test.MONGODB_URI;
     }
     
-/*     console.log(process.env.PORT);
-    console.log(process.env.MONGODB_URI); */
+    console.log(process.env.PORT);
+    console.log(process.env.MONGODB_URI);
+    
     // console.log(config.development.JWT_SECERT);
 
     
