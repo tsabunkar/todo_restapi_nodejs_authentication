@@ -4,7 +4,12 @@ const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const bcrypt = require('bcryptjs');
 //Stores the schema of User
-var config = require('./../configuration/config.json')
+// var config = require('./../configuration/config.json')
+
+//this absolute path of config.json shld never be executed bcoz while pushing to git
+// & heroku we r ignoring this config.json file soo , 
+//if used this file path our appl break in production
+
 
 var UserSchema = new mongoose.Schema({
     email: { //email -> field or property
@@ -77,7 +82,7 @@ UserSchema.methods.generateAuthToken = function () {
     var jwtToken = jwt.sign({
         _id: indiviualUserObj._id.toHexString(),
         access: access
-    }, config.development.JWT_SECERT).toString();
+    }, process.env.JWT_SECERT).toString();
 
 /*     console.log("individual user object is " + JSON.stringify(indiviualUserObj, undefined, 2));
     console.log("jwt token value is : " + jwtToken); */
@@ -120,7 +125,7 @@ UserSchema.statics.findByToken = function (token) {   //instead of writing the s
         //instead of writing the salt here we will be writing it inside the config.json file
         //soo that even though, hacker get this code , they will not get the salt value
 
-        decoded = jwt.verify(token, config.development.JWT_SECERT);
+        decoded = jwt.verify(token, process.env.JWT_SECERT);
         // console.log(JSON.stringify(decoded));
     } catch (err) {
         return new Promise((resolve, reject) => {
