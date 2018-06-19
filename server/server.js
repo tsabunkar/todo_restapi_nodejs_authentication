@@ -104,6 +104,7 @@ app.get('/todos', authenticate, (request, response) => {
 
 //GETONE
 //GET /todos/123
+//localhost:3000/todos/5b28b7b83428d43b38f41665
 app.get('/todos/:todoId', authenticate, (request, response) => {
    /*  console.log(request.params); //gives the url parameters
     console.log(request.params.todoId); */
@@ -149,6 +150,7 @@ app.get('/todos/:todoId', authenticate, (request, response) => {
 
 
 //DELETE
+//http://localhost:3000/todos/5b28b7d83428d43b38f41666
 app.delete('/todos/:todoId', authenticate, (request, response) => {
     var uriIdToDelete = request.params.todoId;
     if (!ObjectID.isValid(uriIdToDelete)) { //If Id is not valid format then exec this if body
@@ -192,6 +194,7 @@ app.delete('/todos/:todoId', authenticate, (request, response) => {
 
 
 //UPDATE --> Uses HTTP Patch Method
+//http://localhost:3000/todos/5b28b7b83428d43b38f41665
 app.patch('/todos/:todoId', authenticate, (request, response) => {
     var uriIdToUpdate = request.params.todoId;
     //pick method will take/pick 2nd argum array value (which are prroperty name in request body ) from the request body
@@ -256,7 +259,7 @@ app.patch('/todos/:todoId', authenticate, (request, response) => {
 
 //POST /users
 //public route for signup
-
+//http://localhost:3000/users/signup
 app.post('/users/signup', (request, response) => {
    /*   console.log("Request body is :- ");
     console.log(request.body); */
@@ -294,6 +297,7 @@ app.post('/users/signup', (request, response) => {
 
 //private route
 //GET method
+//http://localhost:3000/users/me
 app.get('/users/me', authenticate, (request, response) => {
     /* console.log(request.user_Obj);
     console.log(response.token_Val); */
@@ -304,6 +308,7 @@ app.get('/users/me', authenticate, (request, response) => {
 
 //POST method
 //login mechanism , verfiaction of username and password
+//http://localhost:3000/users/login
 app.post('/users/login', (request, response) => {
     var emailPassVal = _.pick(request.body, ['email', 'password']);
     // console.log(JSON.stringify(emailPassVal, undefined, 2));
@@ -336,6 +341,7 @@ app.post('/users/login', (request, response) => {
 //we will be deleting the token of the currently login user
 //token is used to maintain session of the particular user when he logs-in
 //make this api as private -> just by introducing the authenticate method as argument
+//http://localhost:3000/users/me/logout
 app.delete('/users/me/logout', authenticate, (request, response) => {
    /*  console.log("---welcome to delete token method----");
     console.log(request.user_Obj);
