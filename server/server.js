@@ -1,6 +1,6 @@
 require('./configuration/config')
 
-const port = process.env.PORT ;
+const port = process.env.PORT;
 //this variable will be set , if the appln is running on the heroku
 //It wont be set, if it is running on local
 
@@ -49,7 +49,7 @@ app.use(bodyParser.json()); //We are setting middleware from client request to
 //localhost:3000/todos                                                                                                                                                                                                                                                                                                                                                                                                                           
 app.post('/todos', authenticate, (request, response) => {
     /* console.log("Request body is :- ");
-    console.log(request.body);  *///here we get the POST request which has been send from client in JSON 
+    console.log(request.body);  */ //here we get the POST request which has been send from client in JSON 
     //format (but got converted to JS Object using body-parser middleware)
     //create an instance of mongoose Model
     var todoObj = new Todo({
@@ -60,14 +60,14 @@ app.post('/todos', authenticate, (request, response) => {
     })
 
     todoObj.save().then((result) => {
-       /*  console.log("Response body is :- ");
-        console.log(result); */
+        /*  console.log("Response body is :- ");
+         console.log(result); */
         response.send(result); //Here we are sending back the saved document result back to the client 
         //ie- we are resonding for the request send by the client
         // mongoose.connection.close();
     }).catch((err) => {
-      /*   console.log("Response body is :- ");
-        console.log(err); */
+        /*   console.log("Response body is :- ");
+          console.log(err); */
         response.status(400).send(err);
         // mongoose.connection.close();
 
@@ -106,8 +106,8 @@ app.get('/todos', authenticate, (request, response) => {
 //GET /todos/123
 //localhost:3000/todos/5b28b7b83428d43b38f41665
 app.get('/todos/:todoId', authenticate, (request, response) => {
-   /*  console.log(request.params); //gives the url parameters
-    console.log(request.params.todoId); */
+    /*  console.log(request.params); //gives the url parameters
+     console.log(request.params.todoId); */
     var uriIdFetch = request.params.todoId;
     if (!ObjectID.isValid(uriIdFetch)) { //If Id is not valid format then exec this if body
         response.status(404).send({
@@ -261,11 +261,11 @@ app.patch('/todos/:todoId', authenticate, (request, response) => {
 //public route for signup
 //http://localhost:3000/users/signup
 app.post('/users/signup', (request, response) => {
-   /*   console.log("Request body is :- ");
-    console.log(request.body); */
+    /*   console.log("Request body is :- ");
+     console.log(request.body); */
     var rxedbody = _.pick(request.body, ['email', 'password'])
-   /*  console.log("-------");
-    console.log(rxedbody); */
+    /*  console.log("-------");
+     console.log(rxedbody); */
 
     /*  var userObj = new User({
          email : rxedbody.email,
@@ -278,8 +278,8 @@ app.post('/users/signup', (request, response) => {
     userObj.save().then((userObj) => {
         return userObj.generateAuthToken();
 
-       /*  console.log("Response body is :- ");
-        console.log(userObj); */
+        /*  console.log("Response body is :- ");
+         console.log(userObj); */
         // response.send(userObj); //used to send the userInstnace which has been saved
         //back to the client as response
         //recursive then()                             
@@ -343,10 +343,10 @@ app.post('/users/login', (request, response) => {
 //make this api as private -> just by introducing the authenticate method as argument
 //http://localhost:3000/users/me/logout
 app.delete('/users/me/logout', authenticate, (request, response) => {
-   /*  console.log("---welcome to delete token method----");
-    console.log(request.user_Obj);
-    console.log("------");
-    console.log(request.token_Val); */
+    /*  console.log("---welcome to delete token method----");
+     console.log(request.user_Obj);
+     console.log("------");
+     console.log(request.token_Val); */
     //we need to use -> user_Obj, token_Val bocz this request is going to
     //authenicate middleware
     var promiseObj = request.user_Obj.removeToken(request.token_Val);
@@ -370,7 +370,11 @@ app.delete('/users/me/logout', authenticate, (request, response) => {
 
 app.listen(port, () => {
     console.log(`Running @${port} port`);
-})
+});
+
+module.exports = {
+    app
+}
 
 
 //=====================================================================================
