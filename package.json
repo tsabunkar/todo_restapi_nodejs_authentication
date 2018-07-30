@@ -6,8 +6,8 @@
   "scripts": {
     "start-node": "node server/server.js",
     "start": "nodemon server/server.js",
-    "test": "mocha \"./{,!(node_modules)/**/}server/**/*.test.js\"",
-    "test2": "mocha server/**/*.test.js",
+    "test": "mocha --timeout 10000 \"./{,!(node_modules)/**/}server/**/*.test.js\"",
+    "test2": "mocha --timeout 10000 server/**/*.test.js",
     "test-watch": "nodemon --exec \"npm test\" ",
     "test-watch2": "nodemon --exec \"npm run test2\" "
   },

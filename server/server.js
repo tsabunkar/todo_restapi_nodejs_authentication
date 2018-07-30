@@ -419,3 +419,33 @@ only for that specific user (which is been passed/entered in the Request header 
 
 
  */
+
+
+ //===========================================(TEST)========================================================
+
+ app.post('/todos_test', (request, response) => {
+    /* console.log("Request body is :- ");
+    console.log(request.body);  */ //here we get the POST request which has been send from client in JSON 
+    //format (but got converted to JS Object using body-parser middleware)
+    //create an instance of mongoose Model
+    var todoObj = new Todo({
+        text: request.body.text,
+        completed: request.body.completed,
+        completedAt: request.body.completedAt,
+        // _creator: request.user_Obj._id //linking with User model
+    })
+
+    todoObj.save().then((result) => {
+        /*  console.log("Response body is :- ");
+         console.log(result); */
+        response.send(result); //Here we are sending back the saved document result back to the client 
+        //ie- we are resonding for the request send by the client
+        // mongoose.connection.close();
+    }).catch((err) => {
+        /*   console.log("Response body is :- ");
+          console.log(err); */
+        response.status(400).send(err);
+        // mongoose.connection.close();
+
+    });
+})
