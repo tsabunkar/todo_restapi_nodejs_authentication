@@ -424,50 +424,33 @@ only for that specific user (which is been passed/entered in the Request header 
  //===========================================(TEST)========================================================
 
  app.post('/todos_test', (request, response) => {
-    /* console.log("Request body is :- ");
-    console.log(request.body);  */ //here we get the POST request which has been send from client in JSON 
-    //format (but got converted to JS Object using body-parser middleware)
-    //create an instance of mongoose Model
+
     var todoObj = new Todo({
         text: request.body.text,
         completed: request.body.completed,
-        completedAt: request.body.completedAt,
-        // _creator: request.user_Obj._id //linking with User model
+        completedAt: request.body.completedAt
     })
 
     todoObj.save().then((result) => {
-        /*  console.log("Response body is :- ");
-         console.log(result); */
-        response.send(result); //Here we are sending back the saved document result back to the client 
-        //ie- we are resonding for the request send by the client
-        // mongoose.connection.close();
-    }).catch((err) => {
-        /*   console.log("Response body is :- ");
-          console.log(err); */
-        response.status(400).send(err);
-        // mongoose.connection.close();
 
+        response.send(result); 
+    }).catch((err) => {
+        response.status(400).send(err);
     });
 })
 
 
 app.get('/todos_test', (request, response) => {
 
-    // console.log(request.user_Obj._id);
-    //fetching all the documents from the todo collection
     Todo.find().then((mytodo) => {
         // console.log(mytodo);
         response.send({
             mytodo,
             "isEverythingOk": true
-        }) //mytodo variable name will be the propertyname for listofdocuments 
-        // mongoose.connection.close();// IF u close the connection we cannot make any other 
-        //GET request from the client side
+        })
 
     }).catch((err) => {
-        // console.log(err);
         response.status(400).send(err);
-        // mongoose.connection.close();
 
     });
 })
@@ -475,7 +458,7 @@ app.get('/todos_test', (request, response) => {
 
 app.get('/todos_test/:todoId', (request, response) => {
     var uriIdFetch = request.params.todoId;
-    if (!ObjectID.isValid(uriIdFetch)) { //If Id is not valid format then exec this if body
+    if (!ObjectID.isValid(uriIdFetch)) { 
         response.status(404).send({
             error: 'Id Format is not valid',
             isEveryThingOk: false
@@ -487,7 +470,6 @@ app.get('/todos_test/:todoId', (request, response) => {
         _id: uriIdFetch
     }).then((todoObj) => {
         if (!todoObj) {
-            //If document is empty 
             response.status(404).send({
                 error: 'Id format is valid but no docu found with this id',
                 isEveryThingOk: false
@@ -504,3 +486,75 @@ app.get('/todos_test/:todoId', (request, response) => {
     });
 
 })
+
+
+app.delete('/todos_test/:todoId', (request, response) => {
+    var uriIdToDelete = request.params.todoId;
+    if (!ObjectID.isValid(uriIdToDelete)) { //If Id is not valid format then exec this if body
+        response.status(404).send({
+            error: 'Id Format is not valid',
+            isEveryThingOk: false
+        });
+        return
+    }
+
+    Todo.findOneAndRemove({
+        _id: uriIdToDelete
+    }).then((todoObjDeleted) => {
+        if (!todoObjDeleted) {
+            //If document is empty 
+            response.status(404).send({
+                error: 'Id format is valid but no docu found with this id',
+                isEveryThingOk: false
+            });
+            return
+        }
+        //success
+        response.send({
+            myTodoObj: todoObjDeleted,
+            isEveryThingOk: true
+        })
+    }).catch((err) => {
+        response.status(400).send(err);
+    });
+})
+
+
+
+app.patch('/todos_test/:todoId', (request, response) => {
+    var uriIdToUpdate = request.params.todoId;
+    //pick method will take/pick 2nd argum array value (which are prroperty name in request body ) from the request body
+
+    var rxedbody = _.pick(request.body, ['text', 'completed', 'completedAt'])
+    if (!ObjectID.isValid(uriIdToUpdate)) { //If Id is not valid format then exec this if body
+        response.status(404).send({
+            error: 'Id Format is not valid',
+            isEveryThingOk: false
+        });
+        return
+    }
+
+    Todo.findOneAndUpdate({
+        _id: uriIdToUpdate
+    }, {
+        $set: rxedbody
+    }, {
+        new: true
+    }).then((updatedtodoObj) => {
+        if (!updatedtodoObj) {
+            response.status(404).send({
+                error: 'Id format is valid but no docu found with this id',
+                isEveryThingOk: false
+            });
+            return;
+        }
+        //success
+        response.send({
+            myTodoObj: updatedtodoObj,
+            isEveryThingOk: true
+        })
+    }).catch((err) => {
+        response.status(400).send(err);
+    });
+
+});

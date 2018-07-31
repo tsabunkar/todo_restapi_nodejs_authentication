@@ -20,16 +20,19 @@ const todosArray = [{
     },
     {
         _id: new ObjectID(),
-        text: 'Second textValue'
+        text: 'Second textValue',
+        completed: true,
+        completedAt: 420
     }
 ];
 
 
-//before running our test cases, we need to clean up the DB's records, which is done below
+//before running our test cases, we need to clean up the DB's records and insert todosArray, which is done below
+//This beforeEach would be ran BEFORE each Test cases (i.e- BEFORE each it() method in specific)
 beforeEach((done) => {
     Todo.remove({}) //It will remove all the documents from Todo collection
         .then(() => {
-            Todo.insertMany(todosArray)
+            Todo.insertMany(todosArray) //insert the Above array which has list of Object/Todo document
             done();
         });
 })
@@ -123,7 +126,7 @@ describe('GETALL /todos_test', () => {
 
 
 describe('GETONE  /todos_test/:todoId', () => {
- 
+
 
     it('should get particular todos document', (done) => {
         let objectIdInObjectType = todosArray[0]._id;
@@ -132,7 +135,7 @@ describe('GETONE  /todos_test/:todoId', () => {
         request(app).get(`/todos_test/${objectIdInStringType}`)
             .expect(200)
             .expect((resp) => {
-                 console.log(resp.body);
+                // console.log(resp.body);
                 expectjs(resp.body.myTodoObj.text).to.be.equal(todosArray[0].text);
             })
             .end(done)
@@ -145,10 +148,105 @@ describe('GETONE  /todos_test/:todoId', () => {
             .end(done)
     })
 
-    it('should return 404 for non-Object ids', (done) => {
+    it('should return 404 if Object id is invalid', (done) => {
         request(app).get(`/todos_test/123abc}`)
             .expect(404)
             .end(done)
     })
 
+});
+
+
+
+describe('DELETE  /todos_test/:todoId', () => {
+
+    it('should remove todos document', (done) => {
+        let objectIdInObjectType = todosArray[1]._id;
+        let objectIdInStringType = objectIdInObjectType.toHexString();
+
+        request(app).delete(`/todos_test/${objectIdInStringType}`)
+            .expect(200)
+            .expect((resp) => {
+                // console.log(resp.body);
+                expectjs(resp.body.myTodoObj.text).to.be.equal(todosArray[1].text);
+            })
+            .end((err, response) => {
+                if (err) {
+                    done(err)
+                    return;
+                }
+                //query DB by findById (Searching for the Object which was already deleted)
+                Todo.findById(objectIdInObjectType).then((todoDoc) => {
+                    expectjs(todoDoc).is.null; //findById() -> return null (i.e- no document exist, bcoz that docum is already got deleted)
+                    done();
+                }).catch((err) => {
+                    done(err);
+                });
+            })
+    })
+    it('should return 404 if todo not found', (done) => {
+        let objectIdVal = new ObjectID();
+        request(app).delete(`/todos_test/${objectIdVal.toHexString()}`)
+            .expect(404)
+            .end(done)
+    })
+    it('should return 404 if Object id is invalid', (done) => {
+        request(app).delete(`/todos_test/123abc}`)
+            .expect(404)
+            .end(done)
+    })
+
+});
+
+
+describe('PATCH  /todos_test/:todoId', () => {
+
+    it('should update the todos docum', (done) => {
+        let objectIdInObjectType = todosArray[1]._id;
+        let objectIdInStringType = objectIdInObjectType.toHexString();
+
+        let idToUpdate = todosArray[1]._id;
+
+        testTodoObjUpdate = {
+            text: 'Updating second Text!! :)',
+            completed: true
+        }
+        request(app).patch(`/todos_test/${objectIdInStringType}`)
+            .send(testTodoObjUpdate)
+            .expect(200)
+            .expect((resp) => {
+                // console.log(resp.body);
+                expectjs(resp.body.myTodoObj.text).to.be.equal(testTodoObjUpdate.text)
+                expectjs(resp.body.myTodoObj.completed).to.be.equal(testTodoObjUpdate.completed)
+                expectjs(resp.body.myTodoObj.completedAt).to.be.an('number');
+                expectjs(resp.body.myTodoObj.completed).to.be.an('boolean');
+
+            })
+            .end(done)
+
+    })
+
+    it('Should clear completedAt when todo is not completed', (done) => {
+        let objectIdInObjectType = todosArray[0]._id;
+        let objectIdInStringType = objectIdInObjectType.toHexString();
+
+        let idToUpdate = todosArray[0]._id;
+
+        testTodoObjUpdate = {
+            text: 'Updating First Text!! :(',
+            completed: false
+        }
+        request(app).patch(`/todos_test/${objectIdInStringType}`)
+            .send(testTodoObjUpdate)
+            .expect(200)
+            .expect((resp) => {
+                // console.log(resp.body);
+                expectjs(resp.body.myTodoObj.text).to.be.equal(testTodoObjUpdate.text)
+                expectjs(resp.body.myTodoObj.completed).to.be.equal(testTodoObjUpdate.completed)
+                expectjs(resp.body.myTodoObj.completed).to.be.an('boolean');
+                expectjs(resp.body.myTodoObj.completedAt).is.null;
+
+            })
+            .end(done)
+    })
 });

@@ -3,6 +3,7 @@
 
 var env = process.env.NODE_ENV || 'development';
 //NODE_ENV -> it is for production env
+console.log('env ******', env);
 
 if (env === 'development' || env === 'test') {//This code will never run in the production 
 //envrio bcoz this If condition will never be passed as there is no env==='production'
