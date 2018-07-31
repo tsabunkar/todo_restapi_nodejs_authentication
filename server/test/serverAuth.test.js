@@ -23,8 +23,7 @@ let userOneId = new ObjectID();
 let userTwoId = new ObjectID();
 let access = 'auth';
 
-const usersArray = [
-    {
+const usersArray = [{
         _id: userOneId,
         email: 'tsabunkar@gmail.com',
         password: '123abc',
@@ -45,15 +44,15 @@ const usersArray = [
 ]
 
 const todosArray = [{
-    _id: new ObjectID(),
-    text: 'First textValue'
-},
-{
-    _id: new ObjectID(),
-    text: 'Second textValue',
-    completed: true,
-    completedAt: 420
-}
+        _id: new ObjectID(),
+        text: 'First textValue'
+    },
+    {
+        _id: new ObjectID(),
+        text: 'Second textValue',
+        completed: true,
+        completedAt: 420
+    }
 ];
 
 //this before each shld be run first bcoz - First create the User document then add Todos document
@@ -78,7 +77,7 @@ beforeEach((done) => {
 //before running our test cases, we need to clean up the DB's records and insert todosArray, which is done below
 //This beforeEach would be ran BEFORE each Test cases (i.e- BEFORE each it() method in specific)
 //each time it() is executed before that beforEach() wuld be executed.
-beforeEach((done) => {//this fun is provided by mocha
+beforeEach((done) => { //this fun is provided by mocha
     Todo.remove({}) //It will remove all the documents from Todo collection
         .then(() => {
             Todo.insertMany(todosArray) //insert the Above array which has list of Object/Todo document
@@ -113,10 +112,10 @@ describe('POST /todos_test', () => {
                 }
                 //GO to DB, only when document would have been inserted in the collection, now let us test that docum
                 Todo.find({
-                    text: testTodoObj.text,
-                    completed: testTodoObj.completed,
-                    completedAt: testTodoObj.completedAt
-                })
+                        text: testTodoObj.text,
+                        completed: testTodoObj.completed,
+                        completedAt: testTodoObj.completedAt
+                    })
                     .then((todoObj) => {
                         // console.log(todoObj);
                         expectjs(todoObj.length).to.be.equal(1); //checking the length of collec
@@ -353,7 +352,9 @@ describe('POST /users/signup', () => {
                     return
                 }
 
-                User.findOne({ email: emailToTest }).then((userDocum) => {
+                User.findOne({
+                    email: emailToTest
+                }).then((userDocum) => {
                     expectjs(userDocum).is.exist;
                     expectjs(userDocum.password).to.not.be.equal(passwordToTest)
                     done();
@@ -392,5 +393,90 @@ describe('POST /users/signup', () => {
             .expect(400)
             .end(done)
 
+    })
+})
+
+describe('POST /users/login', () => {
+
+    it('should login user and return auth token', (done) => {
+        request(app).post('/users/login')
+            .send({
+                email: usersArray[1].email,
+                password: usersArray[1].password
+            })
+            .expect(200)
+            .expect((resp) => {
+                // console.log(resp.headers['x-auth']);
+                // console.log(resp.body);
+                expectjs(resp.headers['x-auth']).is.exist;
+            })
+            .end((err, response) => {
+                if (err) {
+                    done(err)
+                    return
+                }
+                User.findById(usersArray[1]._id).then((userDocum) => {
+                    // console.log(userDocum);
+                    // console.log(userDocum.tokens[0].token === response.headers['x-auth']);
+                    expectjs(userDocum.tokens[0]).to.include({
+                        access: 'auth',
+                        token: response.headers['x-auth']
+                    })
+                    done();
+                }).catch((err) => {
+                    done(err)
+                });
+            })
+    })
+
+    it('should reject invalid login (invalid username or password)', (done) => {
+        request(app).post('/users/login')
+            .send({
+                email: usersArray[1].email,
+                password: 'jqhefjh'
+            })
+            .expect(400)
+            .expect((resp) => {
+                expectjs(resp.headers['x-auth']).is.not.exist;
+            })
+            .end((err, response) => {
+                if (err) {
+                    done(err)
+                    return
+                }
+                User.findById(usersArray[1]._id).then((userDocum) => {
+                    expectjs(userDocum.tokens).to.have.length(0);
+
+                    done();
+                }).catch((err) => {
+                    done(err)
+                });
+            })
+    })
+
+});
+
+
+
+describe('DELETE /users/me/logout', () => {
+
+    it('should remove the token value on logout', (done) => {
+        request(app).delete('/users/me/logout')
+            .set('x-auth', usersArray[0].tokens[0].token)
+            .expect(200)
+            .end((err, response) => {
+                if (err) {
+                    done(err);
+                    return;
+                }
+                User.findById(usersArray[0]._id).then((userDocum) => {
+                    expectjs(userDocum.tokens).to.have.length(0);
+
+                    done();
+                }).catch((err) => {
+                    done(err)
+                });
+
+            })
     })
 })
