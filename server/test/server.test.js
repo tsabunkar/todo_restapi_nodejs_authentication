@@ -29,7 +29,8 @@ const todosArray = [{
 
 //before running our test cases, we need to clean up the DB's records and insert todosArray, which is done below
 //This beforeEach would be ran BEFORE each Test cases (i.e- BEFORE each it() method in specific)
-beforeEach((done) => {
+//each time it() is executed before that beforEach() wuld be executed.
+beforeEach((done) => {//this fun is provided by mocha
     Todo.remove({}) //It will remove all the documents from Todo collection
         .then(() => {
             Todo.insertMany(todosArray) //insert the Above array which has list of Object/Todo document
