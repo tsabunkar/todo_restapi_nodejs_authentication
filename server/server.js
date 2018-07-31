@@ -449,3 +449,58 @@ only for that specific user (which is been passed/entered in the Request header 
 
     });
 })
+
+
+app.get('/todos_test', (request, response) => {
+
+    // console.log(request.user_Obj._id);
+    //fetching all the documents from the todo collection
+    Todo.find().then((mytodo) => {
+        // console.log(mytodo);
+        response.send({
+            mytodo,
+            "isEverythingOk": true
+        }) //mytodo variable name will be the propertyname for listofdocuments 
+        // mongoose.connection.close();// IF u close the connection we cannot make any other 
+        //GET request from the client side
+
+    }).catch((err) => {
+        // console.log(err);
+        response.status(400).send(err);
+        // mongoose.connection.close();
+
+    });
+})
+
+
+app.get('/todos_test/:todoId', (request, response) => {
+    var uriIdFetch = request.params.todoId;
+    if (!ObjectID.isValid(uriIdFetch)) { //If Id is not valid format then exec this if body
+        response.status(404).send({
+            error: 'Id Format is not valid',
+            isEveryThingOk: false
+        });
+        return
+    }
+
+    Todo.findOne({
+        _id: uriIdFetch
+    }).then((todoObj) => {
+        if (!todoObj) {
+            //If document is empty 
+            response.status(404).send({
+                error: 'Id format is valid but no docu found with this id',
+                isEveryThingOk: false
+            });
+            return
+        }
+        //success
+        response.send({
+            myTodoObj: todoObj,
+            isEveryThingOk: true
+        })
+    }).catch((err) => {
+        response.status(400).send(err);
+    });
+
+})
