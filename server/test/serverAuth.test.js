@@ -5,9 +5,17 @@ const {
     ObjectID
 } = require('mongodb')
 
+/* const {
+    app
+} = require('./../server') */
+
+//Refering to server.js file which is implemented using async-await :)
+
 const {
     app
-} = require('./../server')
+} = require('./../server-async_await')
+
+
 const {
     Todo
 } = require('./../model/Todo')
@@ -24,43 +32,43 @@ let userTwoId = new ObjectID();
 let access = 'auth';
 
 const usersArray = [{
-        _id: userOneId,
-        email: 'tsabunkar@gmail.com',
-        password: '123abc',
-        tokens: [{
-            access: 'auth',
-            token: jwt.sign({
-                _id: userOneId,
-                access: access
-            }, process.env.JWT_SECERT).toString()
-        }]
-    },
-    {
-        _id: userTwoId,
-        email: 'ushasabunkar@gmail.com',
-        password: '123abc',
-        tokens: [{
-            access: 'auth',
-            token: jwt.sign({
-                _id: userTwoId,
-                access: access
-            }, process.env.JWT_SECERT).toString()
-        }]
-    }
+    _id: userOneId,
+    email: 'tsabunkar@gmail.com',
+    password: '123abc',
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({
+            _id: userOneId,
+            access: access
+        }, process.env.JWT_SECERT).toString()
+    }]
+},
+{
+    _id: userTwoId,
+    email: 'ushasabunkar@gmail.com',
+    password: '123abc',
+    tokens: [{
+        access: 'auth',
+        token: jwt.sign({
+            _id: userTwoId,
+            access: access
+        }, process.env.JWT_SECERT).toString()
+    }]
+}
 ]
 
 const todosArray = [{
-        _id: new ObjectID(),
-        text: 'First textValue',
-        _creator: userOneId
-    },
-    {
-        _id: new ObjectID(),
-        text: 'Second textValue',
-        completed: true,
-        completedAt: 420,
-        _creator: userTwoId
-    }
+    _id: new ObjectID(),
+    text: 'First textValue',
+    _creator: userOneId
+},
+{
+    _id: new ObjectID(),
+    text: 'Second textValue',
+    completed: true,
+    completedAt: 420,
+    _creator: userTwoId
+}
 ];
 
 //this before each shld be run first bcoz - First create the User document then add Todos document
@@ -121,10 +129,10 @@ describe('POST /todos', () => {
                 }
                 //GO to DB, only when document would have been inserted in the collection, now let us test that docum
                 Todo.find({
-                        text: testTodoObj.text,
-                        completed: testTodoObj.completed,
-                        completedAt: testTodoObj.completedAt
-                    })
+                    text: testTodoObj.text,
+                    completed: testTodoObj.completed,
+                    completedAt: testTodoObj.completedAt
+                })
                     .then((todoObj) => {
                         // console.log(todoObj);
                         expectjs(todoObj.length).to.be.equal(1); //checking the length of collec
