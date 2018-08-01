@@ -15,13 +15,13 @@ var TodoSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
- /*    //this prroperty tells that, user who has created this particular document
+    //this prroperty tells that, user who has created this particular document
     _creator : {
         //Inorder to identify the the paricular User, we are using the ObjectId of the User document/obj
         //type -> is of Type -> Object
         type : mongoose.Schema.Types.ObjectId,
         required : true
-    } */
+    }
 }); //end of TodoSchema
 
 var Todo = mongoose.model('todo_collecs',TodoSchema);
